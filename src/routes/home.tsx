@@ -191,6 +191,8 @@ export default function Home() {
 
 	const discoverLinkRef = useRef<HTMLDivElement>(null);
 
+
+	
 	return (
 		<div className="relative flex flex-col items-center size-full">
 			{/* Dotted background pattern - extends to full viewport */}
