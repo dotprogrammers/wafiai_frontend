@@ -1,0 +1,1209 @@
+import {
+	createContext,
+	useContext,
+	useState,
+	useEffect,
+	ReactNode,
+} from 'react';
+
+type Language = 'ar' | 'en';
+
+interface LanguageContextType {
+	language: Language;
+	setLanguage: (lang: Language) => void;
+	t: (key: string) => string;
+}
+
+const LanguageContext = createContext<LanguageContextType | undefined>(
+	undefined,
+);
+
+const translations: Record<Language, Record<string, string>> = {
+	ar: {
+		// Header
+		'header.startNow': 'ابدأ الآن',
+		'header.login': 'دخول',
+		'header.home': 'الرئيسية',
+		'header.features': 'الميزات',
+		'header.pricing': 'التسعير',
+		'header.projects': 'المشاريع',
+		'header.blog': 'المدونة',
+		'header.language': 'العربية',
+
+		// Hero
+		'hero.title': 'عالمك الرقمي يبدأ هنا',
+		'hero.subtitle':
+			'اكتب فكرتك بالعربي، واحصل على موقع أو تطبيق كامل خلال دقائق. بدون أكواد، بدون تعقيد، بدون الحاجة للغة الإنجليزية.',
+		'hero.cta': 'ابدأ الآن - مجاناً',
+		'hero.inputPlaceholder': 'صف فكرتك... (متجر، حجوزات، لوحة تحكم)',
+		'hero.try': 'جرب:',
+		'hero.try.store': 'متجر',
+		'hero.try.bookings': 'حجوزات',
+		'hero.try.dashboard': 'لوحة تحكم',
+		'hero.try.blog': 'مدونة',
+		'hero.try.gallery': 'معرض',
+		'hero.try.menu': 'قائمة طعام',
+
+		// Stats
+		'stats.projects': 'أكثر من 50,000 مشروع منشور',
+		'stats.countries': 'يستخدمه رواد أعمال في 15 دولة',
+		'stats.rating': 'تقييم 4.8/5 من المستخدمين',
+
+		// Testimonials
+		'testimonials.title': 'ماذا يقول عملاؤنا',
+		'testimonials.ahmed.quote':
+			'فكرة عيني في دقائق صار عندي موقع كامل. جربت أدوات عالمية بس ما قدرت أتواصل معاها. Wasfai فهمتني من أول كلمة.',
+		'testimonials.ahmed.name': 'أحمد، الرياض',
+		'testimonials.ahmed.role': 'مؤسس ناشئ',
+		'testimonials.sara.quote':
+			'كطالب ما أعرف برمجة، قدرت أصنع portfolio يعرض أعمالي بطريقة احترافية. كل friends سألوني كيف سويته.',
+		'testimonials.sara.name': 'سارة، القاهرة',
+		'testimonials.sara.role': 'مصممة جرافيك',
+		'testimonials.mohammed.quote':
+			'متلي اللي عنده فكرة وما يعرف يترجمها لكود، Wasfai نعمة. سويت تطبيق حجوزات لعيادتي خلال ساعة فقط.',
+		'testimonials.mohammed.name': 'د. محمد، دبي',
+		'testimonials.mohammed.role': 'طبيب أسنان',
+
+		// Features
+		'features.title': 'كل ما تحتاجه',
+		'features.subtitle': 'ميزات متكاملة لتصميم ونشر موقعك في دقائق',
+		'features.hosting.title': 'استضافة مجانية',
+		'features.hosting.desc': 'نطاق فرعي و SSL وشهادة أمان مضمنة مجاناً',
+		'features.responsive.title': 'متجاوب 100%',
+		'features.responsive.desc':
+			'موقعك يعمل بشكل مثالي على الهاتف والكمبيوتر والتابلت',
+		'features.speed.title': 'سرعة فائقة',
+		'features.speed.desc':
+			'أنشئ موقعك في أقل من 5 دقائق من الفكرة إلى النشر live',
+		'features.sharing.title': 'مشاركة سهلة',
+		'features.sharing.desc': 'شارك موقعك على واتساب ومنصات التواصل فوراً',
+		'features.systems.title': 'أنظمة جاهزة',
+		'features.systems.desc': 'حجوزات، تسجيل دخول بوابات دفع، ولوحات تحكم',
+		'features.edit.title': 'تعديل بالسؤال',
+		'features.edit.desc': 'غير أي شيء في موقعك بسؤال بسيط بالعربي',
+
+		// Why Wasf AI Features
+		'features.why.title': 'لماذا Wasf AI؟',
+		'features.why.arabic.title': 'دعم عربي كامل',
+		'features.why.arabic.desc': 'واجهة ومخرجات مصممة للغة العربية بطلاقة',
+		'features.why.instant.title': 'بناء فوري',
+		'features.why.instant.desc': 'من الفكرة إلى موقع حقيقي في دقائق معدودة',
+		'features.why.models.title': 'نماذج متعددة',
+		'features.why.models.desc':
+			'اختر من بين أفضل نماذج الذكاء الاصطناعي العالمية',
+		'features.why.nocoding.title': 'بدون برمجة',
+		'features.why.nocoding.desc':
+			'فقط صف ما تريد والذكاء الاصطناعي يتولى الباقي',
+
+		// Pricing
+		'pricing.title': 'باقات تناسب كل ميزانية',
+		'pricing.subtitle': 'ابدأ مجاناً، وترق عندما تحتاج المزيد',
+		'pricing.free.title': 'مجاني',
+		'pricing.free.price': '0',
+		'pricing.free.priceUnit': 'ر.س / شهرياً',
+		'pricing.free.desc': 'مثالية للبدء والتجربة',
+		'pricing.free.platform': 'منصة متكاملة (استضافة، قاعدة بيانات، مصادقة)',
+		'pricing.free.domain': 'نطاق wasfai.com مجاني لمدة 14 يوم',
+		'pricing.free.credits': '1,000 رصيد مجاني للبدء',
+		'pricing.free.projects': 'مشروع واحد',
+		'pricing.free.support': 'دعم مجتمعي',
+		'pricing.free.cta': 'ابدأ الآن',
+		'pricing.pro.title': 'احترافي',
+		'pricing.pro.price': '99',
+		'pricing.pro.priceUnit': 'ر.س / شهرياً',
+		'pricing.pro.desc': 'لرواد الأعمال الجادين',
+		'pricing.pro.recommended': 'موصى به',
+		'pricing.pro.credits': '25,000 رصيد شهرياً',
+		'pricing.pro.unlimitedProjects': 'مشاريع غير محدودة',
+		'pricing.pro.removeBranding': 'إزالة شعار Wasf AI',
+		'pricing.pro.prioritySupport': 'دعم أولوية',
+		'pricing.pro.exportCode': 'تصدير الكود',
+		'pricing.pro.cta': 'اشترك الآن',
+
+		// Credit Purchase Section
+		'credits.title': 'هل تحتاج المزيد؟',
+		'credits.subtitle': 'اشتر رصيداً إضافياً عند الحاجة',
+		'credits.package1.amount': '10,000 رصيد +',
+		'credits.package1.price': '40',
+		'credits.package2.amount': '50,000 رصيد +',
+		'credits.package2.price': '200',
+		'credits.package3.amount': '100,000 رصيد +',
+		'credits.package3.price': '350',
+		'credits.currency': 'ر.س',
+
+		// AI Models Section
+		'aiModels.title': 'نماذج الذكاء الاصطناعي',
+		'aiModels.recommended': 'موصى به',
+		'aiModels.priceUnit': '1000 / token',
+		'aiModels.minimax.name': 'MiniMax',
+		'aiModels.minimax.price': '0.005',
+		'aiModels.glm.name': 'GLM 4.7',
+		'aiModels.glm.price': '0.004',
+		'aiModels.qwen.name': 'Qwen',
+		'aiModels.qwen.price': '0.005',
+		'aiModels.openai.name': 'OpenAI GPT-4o',
+		'aiModels.openai.price': '0.040',
+		'aiModels.gemini.name': 'Gemini Flash',
+		'aiModels.gemini.price': '0.012',
+
+		'pricing.business.title': 'Business',
+		'pricing.business.price': '299 د.إ / شهر',
+		'pricing.business.desc': 'للفرق والمؤسسات',
+		'pricing.business.allPro': 'كل ميزات Pro',
+		'pricing.business.unlimitedTeam': 'فريق غير محدود',
+		'pricing.business.sso': 'SSO والمصادقة',
+		'pricing.business.sla': 'SLA مضمون',
+		'pricing.business.manager': 'مدير حساب مخصص',
+		'pricing.business.support': 'دعم على مدار الساعة',
+		'pricing.business.cta': 'تواصل معنا',
+
+		// CTA
+		'cta.title': 'لا تنتظر أكثر من ذلك',
+		'cta.subtitle':
+			'الفكرة التي في ذهنك تستحق أن ترى النور. ابدأ الآن، ومجاني بالكامل.',
+		'cta.button': 'أنشئ حسابك المجاني الآن',
+
+		// Footer
+		'footer.tagline':
+			'منصة بناء مواقع وتطبيقات بالعربي بدون أكواد اكتب فكرتك، واحصل على موقع منشور خلال دقائق.',
+		'footer.product': 'المنتج',
+		'footer.company': 'الشركة',
+		'footer.resources': 'الموارد',
+		'footer.account': 'الحساب',
+		'footer.product.features': 'الميزات',
+		'footer.product.prices': 'الأسعار',
+		'footer.product.templates': 'القوالب',
+		'footer.product.integrations': 'التكاملات',
+		'footer.product.updates': 'التحديثات',
+		'footer.product.performance': 'الأداء',
+		'footer.company.about': 'من نحن',
+		'footer.company.jobs': 'الوظائف',
+		'footer.company.press': 'الصحفية',
+		'footer.company.partners': 'الشركاء',
+		'footer.company.contact': 'اتصل بنا',
+		'footer.company.blog': 'المدونة',
+		'footer.resources.help': 'المساعدة',
+		'footer.resources.docs': 'المستندات',
+		'footer.resources.articles': 'المقالات',
+		'footer.resources.videos': 'الفيديوهات',
+		'footer.resources.faq': 'الأسئلة الشائعة',
+		'footer.resources.community': 'المجتمع',
+		'footer.account.dashboard': 'لوحة التحكم',
+		'footer.account.profile': 'الملف الشخصي',
+		'footer.account.settings': 'الإعدادات',
+		'footer.account.projects': 'المشاريع',
+		'footer.account.billing': 'الفوترة',
+		'footer.account.upgrade': 'ترقية إلى Pro',
+		'footer.region': 'Middle East',
+		'footer.copyright': '© 2025 Wasfai. جميع الحقوق محفوظة.',
+		'footer.privacy': 'سياسة الخصوصية',
+		'footer.terms': 'شروط الخدمة',
+		'footer.cookies': 'ملفات تعريف الارتباط',
+		'footer.gdpr': 'حقوق GDPR',
+
+		// Auth
+		'auth.welcome': 'مرحباً بعودتك',
+		'auth.welcomeBack': 'مرحباً بعودتك',
+		'auth.createAccount': 'إنشاء حساب',
+		'auth.signIn': 'تسجيل الدخول',
+		'auth.signUp': 'إنشاء حساب',
+		'auth.signInRequired': 'تسجيل الدخول مطلوب',
+		'auth.authRequired': 'المصادقة مطلوبة لهذا الإجراء',
+		'auth.joinToStart': 'انضم للبدء في بناء تطبيقات رائعة',
+		'auth.signInToSave':
+			'سجل الدخول لحفظ تطبيقاتك والوصول إلى مساحة العمل الخاصة بك',
+		'auth.continueWith': 'أو تابع باستخدام',
+		'auth.continueWithGitHub': 'المتابعة مع GitHub',
+		'auth.continueWithGoogle': 'المتابعة مع Google',
+		'auth.email': 'البريد الإلكتروني',
+		'auth.emailPlaceholder': 'عنوان البريد الإلكتروني',
+		'auth.password': 'كلمة المرور',
+		'auth.passwordPlaceholder': 'كلمة المرور',
+		'auth.confirmPassword': 'تأكيد كلمة المرور',
+		'auth.confirmPasswordPlaceholder': 'تأكيد كلمة المرور',
+		'auth.fullName': 'الاسم الكامل',
+		'auth.fullNamePlaceholder': 'الاسم الكامل',
+		'auth.signingIn': 'جاري تسجيل الدخول...',
+		'auth.creatingAccount': 'جاري إنشاء الحساب...',
+		'auth.noAccount': 'ليس لديك حساب؟ سجل الآن',
+		'auth.haveAccount': 'لديك حساب بالفعل؟ سجل الدخول',
+		'auth.agreeToTerms': 'بالمتابعة، أنت توافق على',
+		'auth.termsOfService': 'شروط الخدمة',
+		'auth.privacyPolicy': 'سياسة الخصوصية',
+		'auth.and': 'و',
+		'auth.emailRequired': 'البريد الإلكتروني مطلوب',
+		'auth.emailInvalid': 'تنسيق البريد الإلكتروني غير صحيح',
+		'auth.passwordRequired': 'كلمة المرور مطلوبة',
+		'auth.passwordMinLength': 'يجب أن تكون كلمة المرور 8 أحرف على الأقل',
+		'auth.nameRequired': 'الاسم مطلوب',
+		'auth.nameMinLength': 'يجب أن يكون الاسم حرفين على الأقل',
+		'auth.passwordsDontMatch': 'كلمات المرور غير متطابقة',
+
+		// Footer Pages - Product
+		'pages.features.metaTitle': 'الميزات | Wasf AI',
+		'pages.features.metaDescription':
+			'تعرّف على ميزات Wasf AI لبناء مواقع وتطبيقات عربية بدون كود.',
+		'pages.features.h1': 'كل ما تحتاجه للبناء — بالعربي',
+		'pages.features.subheading':
+			'أنشئ وانشر وطوّر مواقع وتطبيقات ويب بالذكاء الاصطناعي بدون كتابة أكواد.',
+		'pages.features.primaryCta': 'ابدأ مجانًا',
+		'pages.features.secondaryCta': 'عرض الأسعار',
+		'pages.features.sections.builder.title':
+			'منشئ مواقع وتطبيقات بالذكاء الاصطناعي',
+		'pages.features.sections.builder.desc':
+			'اكتب فكرتك بالعربية، وWasf AI ينشئ منتجًا يعمل ويمكنك تعديله فورًا.',
+		'pages.features.sections.templates.title': 'قوالب جاهزة',
+		'pages.features.sections.templates.desc':
+			'اختر قوالب عربية محسّنة للشركات وصفحات الهبوط والمزيد.',
+		'pages.features.sections.publishing.title': 'نشر بنقرة واحدة',
+		'pages.features.sections.publishing.desc':
+			'انشر بسرعة مع أفضل ممارسات الأداء وتصميم Mobile-first تلقائيًا.',
+		'pages.features.sections.integrations.title': 'التكاملات',
+		'pages.features.sections.integrations.desc':
+			'اربط الدفع والتحليلات وأدوات أخرى لتشغيل مشروعك بالكامل.',
+		'pages.features.sections.security.title': 'الأمان والاعتمادية',
+		'pages.features.sections.security.desc':
+			'بنية حديثة قابلة للتوسع مع ممارسات أمان قوية.',
+		'pages.features.faqTitle': 'الأسئلة الشائعة',
+		'pages.features.faqCta': 'زيارة صفحة الأسئلة',
+
+		'pages.pricing.metaTitle': 'الأسعار | Wasf AI',
+		'pages.pricing.metaDescription':
+			'اختر الخطة المناسبة لمشروعك مع إمكانية الترقية في أي وقت.',
+		'pages.pricing.h1': 'أسعار بسيطة لكل مرحلة',
+		'pages.pricing.subheading': 'ابدأ مجانًا، وارتقِ عندما تحتاج.',
+		'pages.pricing.billingToggleMonthly': 'شهري',
+		'pages.pricing.billingToggleYearly': 'سنوي (توفير أكبر)',
+		'pages.pricing.vatNote': 'قد تُطبق ضريبة القيمة المضافة حسب المنطقة.',
+		'pages.pricing.tiers.free.name': 'مجاني',
+		'pages.pricing.tiers.free.desc': 'جرّب Wasf AI وانشر مشروعك الأول.',
+		'pages.pricing.tiers.free.cta': 'ابدأ مجانًا',
+		'pages.pricing.tiers.pro.name': 'Pro',
+		'pages.pricing.tiers.pro.desc': 'للمشاريع الجادة والنمو السريع.',
+		'pages.pricing.tiers.pro.cta': 'ترقية إلى Pro',
+		'pages.pricing.tiers.business.name': 'Business',
+		'pages.pricing.tiers.business.desc':
+			'للشركات والفرق وحدود أعلى وتحكم متقدم.',
+		'pages.pricing.tiers.business.cta': 'تواصل مع المبيعات',
+		'pages.pricing.comparisonTitle': 'مقارنة الخطط',
+		'pages.pricing.faqCta': 'أسئلة الفوترة',
+
+		'pages.templates.metaTitle': 'القوالب | Wasf AI',
+		'pages.templates.metaDescription':
+			'تصفّح قوالب عربية وابدأ البناء خلال دقائق.',
+		'pages.templates.h1': 'ابدأ بقالب جاهز',
+		'pages.templates.subheading': 'اختر التصميم، عدّل بسهولة، وانشر بسرعة.',
+		'pages.templates.searchPlaceholder': 'ابحث عن القوالب...',
+		'pages.templates.filters.title': 'الفلاتر',
+		'pages.templates.filters.category': 'التصنيف',
+		'pages.templates.filters.industry': 'القطاع',
+		'pages.templates.filters.language': 'اللغة',
+		'pages.templates.actions.preview': 'معاينة',
+		'pages.templates.actions.useTemplate': 'استخدم القالب',
+		'pages.templates.empty.title': 'لا توجد قوالب',
+		'pages.templates.empty.desc': 'جرّب تغيير الفلاتر أو كلمات البحث.',
+
+		'pages.integrations.metaTitle': 'التكاملات | Wasf AI',
+		'pages.integrations.metaDescription':
+			'اربط الدفع والتحليلات والأدوات لتشغيل مشروعك بالكامل.',
+		'pages.integrations.h1': 'التكاملات',
+		'pages.integrations.subheading':
+			'اربط الأدوات التي تحتاجها لإدارة وتشغيل منتجك.',
+		'pages.integrations.categories.payments': 'الدفع',
+		'pages.integrations.categories.analytics': 'التحليلات',
+		'pages.integrations.categories.auth': 'تسجيل الدخول',
+		'pages.integrations.categories.webhooks': 'Webhooks و API',
+		'pages.integrations.categories.hosting': 'الاستضافة',
+		'pages.integrations.card.viewGuide': 'عرض دليل الإعداد',
+		'pages.integrations.card.comingSoon': 'قريبًا',
+
+		'pages.changelog.metaTitle': 'التحديثات | Wasf AI',
+		'pages.changelog.metaDescription': 'تابع كل جديد في Wasf AI.',
+		'pages.changelog.h1': 'التحديثات',
+		'pages.changelog.subheading': 'مزايا جديدة وتحسينات وإصلاحات.',
+		'pages.changelog.subscribe': 'اشترك للتحديثات',
+		'pages.changelog.empty.title': 'لا توجد تحديثات حتى الآن',
+		'pages.changelog.empty.desc': 'عد لاحقًا.',
+
+		'pages.performance.metaTitle': 'الأداء | Wasf AI',
+		'pages.performance.metaDescription':
+			'كيف يحسن Wasf AI الأداء وأفضل الممارسات.',
+		'pages.performance.h1': 'الأداء',
+		'pages.performance.subheading': 'سرعة افتراضية. جاهز للجوال وSEO.',
+		'pages.performance.sections.webVitals.title': 'مؤشرات الويب الأساسية',
+		'pages.performance.sections.webVitals.desc':
+			'تصميم محسّن وCache وتحميل ملفات ذكي.',
+		'pages.performance.sections.cdn.title': 'توزيع عالمي (CDN)',
+		'pages.performance.sections.cdn.desc':
+			'محتوى أقرب للمستخدمين لسرعة تحميل أعلى.',
+		'pages.performance.sections.images.title': 'تحسين الصور',
+		'pages.performance.sections.images.desc':
+			'ضغط تلقائي وأحجام متجاوبة لتخفيف وزن الصفحات.',
+
+		// Footer Pages - Resources
+		'pages.help.metaTitle': 'مركز المساعدة | Wasf AI',
+		'pages.help.metaDescription':
+			'مساعدة حول الإعداد والنشر والفوترة وحل المشاكل.',
+		'pages.help.h1': 'مركز المساعدة',
+		'pages.help.searchPlaceholder': 'ابحث في مقالات المساعدة...',
+		'pages.help.categoriesTitle': 'تصفح حسب القسم',
+		'pages.help.popularTitle': 'مقالات شائعة',
+		'pages.help.empty.title': 'لا توجد نتائج',
+		'pages.help.empty.desc': 'جرّب كلمات مختلفة.',
+
+		'pages.docs.metaTitle': 'المستندات | Wasf AI',
+		'pages.docs.metaDescription': 'وثائق Wasf AI للمطورين والإعداد.',
+		'pages.docs.h1': 'المستندات',
+		'pages.docs.subheading': 'أدلة ومراجع للبناء والنشر والتكاملات.',
+		'pages.docs.sidebar.quickstart': 'البدء السريع',
+		'pages.docs.sidebar.builder': 'المنشئ',
+		'pages.docs.sidebar.integrations': 'التكاملات',
+		'pages.docs.sidebar.hosting': 'الاستضافة',
+		'pages.docs.sidebar.security': 'الأمان',
+		'pages.docs.sidebar.api': 'واجهة API',
+
+		'pages.articles.metaTitle': 'المقالات | Wasf AI',
+		'pages.articles.metaDescription': 'شروحات ودروس وتحديثات المنتج.',
+		'pages.articles.h1': 'المقالات',
+		'pages.articles.searchPlaceholder': 'ابحث في المقالات...',
+		'pages.articles.readMore': 'اقرأ المزيد',
+		'pages.articles.empty.title': 'لا توجد مقالات',
+		'pages.articles.empty.desc': 'جرّب تعديل البحث.',
+
+		'pages.videos.metaTitle': 'الفيديوهات | Wasf AI',
+		'pages.videos.metaDescription': 'شروحات فيديو لتعلّم Wasf AI بسرعة.',
+		'pages.videos.h1': 'الفيديوهات',
+		'pages.videos.subheading': 'دروس قصيرة تساعدك على البناء والنشر بسرعة.',
+		'pages.videos.watch': 'شاهد',
+		'pages.videos.empty.title': 'لا توجد فيديوهات بعد',
+		'pages.videos.empty.desc': 'قريبًا نضيف شروحات.',
+
+		'pages.faq.metaTitle': 'الأسئلة الشائعة | Wasf AI',
+		'pages.faq.metaDescription': 'إجابات لأكثر الأسئلة شيوعًا.',
+		'pages.faq.h1': 'الأسئلة الشائعة',
+		'pages.faq.subheading': 'إجابات سريعة حول الأسعار والنشر والدعم.',
+		'pages.faq.q1': 'ما هي منصة وصف؟',
+		'pages.faq.a1':
+			'وصف هي منصة ذكاء اصطناعي عربية تُمكّنك من إنشاء مواقع وتطبيقات ويب من خلال وصف فكرتك باللغة العربية أو الإنجليزية، دون الحاجة لكتابة أي كود.',
+		'pages.faq.q2': 'لمن صُممت منصة وصف؟',
+		'pages.faq.a2':
+			'تم تصميم وصف من أجل: رواد الأعمال غير التقنيين، أصحاب المشاريع الصغيرة، المستقلين، الطلاب والمبدعين، وأي شخص يريد إطلاق موقع أو فكرة بسرعة.',
+		'pages.faq.q3': 'هل أحتاج خبرة برمجية أو تصميم؟',
+		'pages.faq.a3':
+			'لا. لا تحتاج لأي خبرة تقنية أو برمجية أو تصميمية. فقط اكتب فكرتك، والذكاء الاصطناعي يتولى الباقي.',
+		'pages.faq.q4': 'ماذا يمكنني إنشاؤه باستخدام وصف؟',
+		'pages.faq.a4':
+			'يمكنك إنشاء: مواقع شركات، صفحات هبوط، ملفات تعريفية (Portfolio)، نماذج أولية (MVP)، لوحات تحكم ونماذج، ومواقع محتوى.',
+		'pages.faq.q5': 'ما اللغات المدعومة؟',
+		'pages.faq.a5':
+			'تدعم منصة وصف اللغة العربية (واجهة RTL كاملة) واللغة الإنجليزية. واللغة العربية هي اللغة الأساسية للمنصة.',
+		'pages.faq.q6': 'كيف تعمل منصة وصف؟',
+		'pages.faq.a6':
+			'1. تصف فكرتك باللغة العربية أو الإنجليزية\n2. يقوم الذكاء الاصطناعي بإنشاء الموقع\n3. تراجع وتعدّل عبر المحادثة\n4. تنشر موقعك بنقرة واحدة',
+		'pages.faq.q7': 'هل يمكنني تعديل المشروع بعد إنشائه؟',
+		'pages.faq.a7':
+			'نعم. يمكنك تعديل النصوص والتصميم، طلب تحسينات من الذكاء الاصطناعي، وإعادة توليد أقسام محددة. التعديلات تتم عبر المحادثة الطبيعية.',
+		'pages.faq.q8': 'هل توفر وصف استضافة للموقع؟',
+		'pages.faq.a8':
+			'نعم. توفر وصف استضافة مدمجة تشمل: شهادة أمان SSL، نشر عبر نطاق فرعي، وأداء سريع عالمي. يمكنك أيضًا اختيار التصدير أو الاستضافة في مكان آخر (حسب الخطة).',
+		'pages.faq.q9': 'هل يمكنني استخدام نطاقي الخاص؟',
+		'pages.faq.a9': 'نعم. تتيح الخطط المدفوعة ربط نطاقك الخاص بمشروعك.',
+		'pages.faq.q10': 'هل منصة وصف مجانية؟',
+		'pages.faq.a10':
+			'توفر وصف خطة مجانية للتجربة والتعلم، وخطط مدفوعة للنشر والاستضافة والميزات المتقدمة. تفاصيل الخطط متاحة في صفحة التسعير.',
+		'pages.faq.q11': 'كيف يتم التسعير؟',
+		'pages.faq.a11':
+			'يعتمد التسعير على: استخدام الذكاء الاصطناعي، ميزات الاستضافة، وخيارات النشر. الأسعار واضحة قبل الدفع، بدون رسوم مخفية.',
+		'pages.faq.q12': 'ما وسائل الدفع المتاحة؟',
+		'pages.faq.a12':
+			'قد تشمل وسائل الدفع: بوابات دفع محلية في السعودية، بطاقات ائتمان ومدى، ووسائل دفع إقليمية أخرى. التوفر قد يختلف حسب البلد.',
+		'pages.faq.q13': 'هل يتم احتساب ضريبة القيمة المضافة؟',
+		'pages.faq.a13':
+			'نعم، حيثما ينطبق، ويتم عرضها بوضوح أثناء الدفع وفقًا للوائح المحلية.',
+		'pages.faq.q14': 'من يملك المحتوى الناتج؟',
+		'pages.faq.a14':
+			'أنت تملك المحتوى الذي تنشئه باستخدام وصف، ولا تطالب المنصة بملكية مشاريعك.',
+		'pages.faq.q15': 'هل يمكن استخدام وصف لأغراض تجارية؟',
+		'pages.faq.a15':
+			'نعم، يمكن استخدام وصف لمشاريع شخصية وتجارية وفقًا لشروط الاستخدام.',
+		'pages.faq.q16': 'هل بياناتي آمنة؟',
+		'pages.faq.a16':
+			'نعم. تلتزم وصف بأفضل ممارسات الأمان ولا تبيع بيانات المستخدمين.',
+		'pages.faq.q17': 'هل يتم تخزين الأوامر والمحتوى؟',
+		'pages.faq.a17':
+			'قد يتم تخزين بعض البيانات بشكل محدود لتحسين الخدمة وضمان الوظائف، وذلك وفق سياسة الخصوصية.',
+		'pages.faq.q18': 'هل تضمن وصف نتائج مثالية؟',
+		'pages.faq.a18':
+			'لا. المحتوى الناتج عن الذكاء الاصطناعي يحتاج مراجعة واختبار من المستخدم قبل النشر أو الاستخدام التجاري.',
+		'pages.faq.q19': 'هل يمكنني إلغاء الاشتراك؟',
+		'pages.faq.a19': 'نعم. يمكن إلغاء الاشتراك في أي وقت حسب شروط الفوترة.',
+		'pages.faq.q20': 'كيف أتواصل مع الدعم؟',
+		'pages.faq.a20':
+			'يمكنك التواصل مع فريق وصف عبر: صفحة التواصل، البريد الإلكتروني الرسمي، أو الدعم داخل المنصة (إن كان متاحًا).',
+		'pages.faq.stillHaveQuestions': 'لم تجد إجابة لسؤالك؟',
+		'pages.faq.contactUs': 'تواصل معنا',
+		'landing.faq.title': 'الأسئلة الشائعة',
+		'landing.faq.subtitle': 'إجابات سريعة على أكثر الأسئلة شيوعًا',
+
+		'pages.community.metaTitle': 'المجتمع | Wasf AI',
+		'pages.community.metaDescription': 'انضم إلى مجتمع Wasf AI.',
+		'pages.community.h1': 'المجتمع',
+		'pages.community.subheading':
+			'شارك ملاحظاتك وقوالبك وتعلّم مع الآخرين.',
+		'pages.community.primaryCta': 'انضم للمجتمع',
+		'pages.community.secondaryCta': 'إرسال ملاحظات',
+
+		// Footer Pages - Company
+		'pages.about.metaTitle': 'من نحن | Wasf AI',
+		'pages.about.metaDescription': 'تعرف على قصة ورسالة Wasf AI.',
+		'pages.about.h1': 'من نحن',
+		'pages.about.subheading':
+			'منصة عربية للبناء بالذكاء الاصطناعي تساعد أي شخص على إطلاق منتج حقيقي بسرعة.',
+		'pages.about.sections.mission.title': 'رسالتنا',
+		'pages.about.sections.mission.desc':
+			'نجعل البناء متاحًا باللغة العربية.',
+		'pages.about.sections.vision.title': 'رؤيتنا',
+		'pages.about.sections.vision.desc':
+			'منصة عالمية تنطلق من السعودية إلى العالم.',
+		'pages.about.sections.values.title': 'قيمنا',
+		'pages.about.sections.values.desc': 'الوضوح، السرعة، الثقة، والإتقان.',
+		'pages.about.primaryCta': 'ابدأ البناء',
+		'pages.about.secondaryCta': 'عرض القوالب',
+
+		'pages.careers.metaTitle': 'الوظائف | Wasf AI',
+		'pages.careers.metaDescription': 'انضم إلى فريق Wasf AI.',
+		'pages.careers.h1': 'الوظائف',
+		'pages.careers.subheading':
+			'ساهم في بناء الجيل القادم من المنتجات العربية بالذكاء الاصطناعي.',
+		'pages.careers.openRoles': 'الوظائف المتاحة',
+		'pages.careers.apply': 'تقديم',
+		'pages.careers.empty.title': 'لا توجد وظائف حاليًا',
+		'pages.careers.empty.desc': 'عد لاحقًا.',
+
+		'pages.press.metaTitle': 'الصحافة | Wasf AI',
+		'pages.press.metaDescription': 'المواد الصحفية والهوية.',
+		'pages.press.h1': 'الصحافة',
+		'pages.press.subheading': 'ملفات الهوية، الأخبار، وتواصل الإعلام.',
+		'pages.press.downloadKit': 'تحميل الحقيبة الصحفية',
+		'pages.press.mediaContact': 'تواصل إعلامي',
+		'pages.press.emailLabel': 'البريد',
+
+		'pages.partners.metaTitle': 'الشركاء | Wasf AI',
+		'pages.partners.metaDescription': 'كن شريكًا لـ Wasf AI.',
+		'pages.partners.h1': 'الشركاء',
+		'pages.partners.subheading':
+			'تعاون معنا لمساعدة المزيد من صناع المنتجات على الإطلاق بسرعة.',
+		'pages.partners.typesTitle': 'برامج الشراكة',
+		'pages.partners.applyCta': 'التقديم كشريك',
+
+		'pages.contact.metaTitle': 'اتصل بنا | Wasf AI',
+		'pages.contact.metaDescription': 'تواصل مع فريق Wasf AI.',
+		'pages.contact.h1': 'اتصل بنا',
+		'pages.contact.subheading': 'أرسل رسالتك وسنرد عليك قريبًا.',
+		'pages.contact.form.name': 'الاسم',
+		'pages.contact.form.email': 'البريد الإلكتروني',
+		'pages.contact.form.topic': 'الموضوع',
+		'pages.contact.form.topicOptions.support': 'الدعم',
+		'pages.contact.form.topicOptions.sales': 'المبيعات',
+		'pages.contact.form.topicOptions.legal': 'قانوني',
+		'pages.contact.form.message': 'الرسالة',
+		'pages.contact.form.submit': 'إرسال',
+		'pages.contact.success.title': 'تم الإرسال',
+		'pages.contact.success.desc': 'سنرد عليك بأقرب وقت ممكن.',
+
+		'pages.blog.metaTitle': 'المدونة | Wasf AI',
+		'pages.blog.metaDescription': 'أخبار ودروس وتحديثات المنتج.',
+		'pages.blog.h1': 'المدونة',
+		'pages.blog.subheading': 'تعلّم وأطلق ووسّع مشروعك مع Wasf AI.',
+
+		// Footer Pages - Account
+		'pages.account.dashboard.navLabel': 'لوحة التحكم',
+		'pages.account.dashboard.h1': 'لوحة التحكم',
+		'pages.account.dashboard.subheading':
+			'إدارة المشاريع والنشر والفوترة من مكان واحد.',
+		'pages.account.dashboard.quickActions': 'إجراءات سريعة',
+		'pages.account.dashboard.newProject': 'مشروع جديد',
+		'pages.account.dashboard.openBuilder': 'فتح المنشئ',
+		'pages.account.dashboard.usage': 'الاستخدام',
+		'pages.account.dashboard.plan': 'الخطة',
+		'pages.account.dashboard.billingCta': 'إدارة الفوترة',
+
+		'pages.account.profile.navLabel': 'الملف الشخصي',
+		'pages.account.profile.h1': 'الملف الشخصي',
+		'pages.account.profile.name': 'الاسم',
+		'pages.account.profile.email': 'البريد الإلكتروني',
+		'pages.account.profile.save': 'حفظ التغييرات',
+		'pages.account.profile.securityTitle': 'الأمان',
+		'pages.account.profile.changePassword': 'تغيير كلمة المرور',
+
+		'pages.account.settings.navLabel': 'الإعدادات',
+		'pages.account.settings.h1': 'الإعدادات',
+		'pages.account.settings.language': 'اللغة',
+		'pages.account.settings.region': 'المنطقة',
+		'pages.account.settings.notifications': 'الإشعارات',
+		'pages.account.settings.save': 'حفظ',
+
+		'pages.account.projects.navLabel': 'المشاريع',
+		'pages.account.projects.h1': 'المشاريع',
+		'pages.account.projects.search': 'ابحث في المشاريع...',
+		'pages.account.projects.open': 'فتح',
+		'pages.account.projects.publish': 'نشر',
+		'pages.account.projects.duplicate': 'نسخ',
+		'pages.account.projects.delete': 'حذف',
+		'pages.account.projects.empty.title': 'لا توجد مشاريع بعد',
+		'pages.account.projects.empty.desc': 'أنشئ مشروعك الأول للبدء.',
+		'pages.account.projects.empty.cta': 'إنشاء مشروع',
+
+		'pages.account.billing.navLabel': 'الفوترة',
+		'pages.account.billing.h1': 'الفوترة',
+		'pages.account.billing.currentPlan': 'الخطة الحالية',
+		'pages.account.billing.managePlan': 'إدارة الخطة',
+		'pages.account.billing.paymentMethod': 'طريقة الدفع',
+		'pages.account.billing.invoices': 'الفواتير',
+		'pages.account.billing.downloadInvoice': 'تحميل',
+		'pages.account.billing.vatInvoice': 'فاتورة ضريبية',
+
+		'pages.upgrade.navLabel': 'ترقية إلى Pro',
+		'pages.upgrade.h1': 'ترقية إلى Pro',
+		'pages.upgrade.subheading': 'افتح حدودًا أعلى وميزات متقدمة.',
+		'pages.upgrade.cta': 'ترقية الآن',
+		'pages.upgrade.secondary': 'عرض الأسعار',
+
+		// Footer Pages - Legal
+		'pages.legal.terms.navLabel': 'شروط الخدمة',
+		'pages.legal.terms.h1': 'شروط الخدمة',
+		'pages.legal.terms.lastUpdated': 'آخر تحديث',
+		'pages.legal.privacy.navLabel': 'سياسة الخصوصية',
+		'pages.legal.privacy.h1': 'سياسة الخصوصية',
+		'pages.legal.privacy.lastUpdated': 'آخر تحديث',
+		'pages.legal.cookies.navLabel': 'سياسة ملفات تعريف الارتباط',
+		'pages.legal.cookies.h1': 'سياسة ملفات تعريف الارتباط',
+		'pages.legal.cookies.lastUpdated': 'آخر تحديث',
+		'pages.legal.gdpr.navLabel': 'حقوق GDPR',
+		'pages.legal.gdpr.h1': 'حقوق GDPR',
+		'pages.legal.gdpr.lastUpdated': 'آخر تحديث',
+	},
+	en: {
+		// Header
+		'header.startNow': 'Start Now',
+		'header.login': 'Login',
+		'header.home': 'Home',
+		'header.features': 'Features',
+		'header.pricing': 'Pricing',
+		'header.projects': 'Projects',
+		'header.blog': 'Blog',
+		'header.language': 'English',
+
+		// Hero
+		'hero.title': 'Your digital world starts here',
+		'hero.subtitle':
+			'Write your idea in Arabic, and get a complete website or application in minutes. Without code, without complexity, without the need for the English language.',
+		'hero.cta': 'Start Now - Free',
+		'hero.inputPlaceholder':
+			'Describe your idea... (store, bookings, control panel)',
+		'hero.try': 'Try:',
+		'hero.try.store': 'Store',
+		'hero.try.bookings': 'Bookings',
+		'hero.try.dashboard': 'Dashboard',
+		'hero.try.blog': 'Blog',
+		'hero.try.gallery': 'Gallery',
+		'hero.try.menu': 'Food Menu',
+
+		// Stats
+		'stats.projects': 'More than 50,000 published projects',
+		'stats.countries': 'Used by entrepreneurs in 15 countries',
+		'stats.rating': '4.8/5 rating from users',
+
+		// Testimonials
+		'testimonials.title': 'What our customers say',
+		'testimonials.ahmed.quote':
+			"In a blink of an eye, I had a complete website. I tried global tools but couldn't communicate with them. Wasfai understood me from the first word.",
+		'testimonials.ahmed.name': 'Ahmed, Riyadh',
+		'testimonials.ahmed.role': 'Startup Founder',
+		'testimonials.sara.quote':
+			"As a student who doesn't know programming, I was able to create a portfolio that showcases my work professionally. All my friends asked me how I did it.",
+		'testimonials.sara.name': 'Sara, Cairo',
+		'testimonials.sara.role': 'Graphic Designer',
+		'testimonials.mohammed.quote':
+			"For someone like me who has an idea but doesn't know how to translate it into code, Wasfai is a blessing. I created a booking application for my clinic in just one hour.",
+		'testimonials.mohammed.name': 'Dr. Mohammed, Dubai',
+		'testimonials.mohammed.role': 'Dentist',
+
+		// Features
+		'features.title': 'Everything you need',
+		'features.subtitle':
+			'Integrated features to design and publish your website in minutes',
+		'features.hosting.title': 'Free Hosting',
+		'features.hosting.desc':
+			'Free subdomain, SSL, and built-in security certificate',
+		'features.responsive.title': '100% Responsive',
+		'features.responsive.desc':
+			'Your website works perfectly on phone, computer, and tablet',
+		'features.speed.title': 'Super Speed',
+		'features.speed.desc':
+			'Create your website in less than 5 minutes from idea to live publishing',
+		'features.sharing.title': 'Easy Sharing',
+		'features.sharing.desc':
+			'Share your website on WhatsApp and social media platforms instantly',
+		'features.systems.title': 'Ready-made Systems',
+		'features.systems.desc':
+			'Bookings, login, payment gateways, and control panels',
+		'features.edit.title': 'Edit by Question',
+		'features.edit.desc':
+			'Change anything on your website with a simple question in Arabic',
+
+		// Why Wasf AI Features
+		'features.why.title': 'Why Wasf AI?',
+		'features.why.arabic.title': 'Full Arabic Support',
+		'features.why.arabic.desc':
+			'Interface and outputs designed for fluent Arabic',
+		'features.why.instant.title': 'Instant Building',
+		'features.why.instant.desc': 'From idea to real website in minutes',
+		'features.why.models.title': 'Multiple Models',
+		'features.why.models.desc': 'Choose from the best global AI models',
+		'features.why.nocoding.title': 'No Coding',
+		'features.why.nocoding.desc':
+			'Just describe what you want and AI handles the rest',
+
+		// Pricing
+		'pricing.title': 'Packages to suit every budget',
+		'pricing.subtitle': 'Start for free, and upgrade when you need more',
+		'pricing.free.title': 'Free',
+		'pricing.free.price': '0',
+		'pricing.free.priceUnit': 'SAR / monthly',
+		'pricing.free.desc': 'Ideal for starting and experimenting',
+		'pricing.free.platform':
+			'Integrated platform (hosting, database, authentication)',
+		'pricing.free.domain': 'Free wasfai.com domain for 14 days',
+		'pricing.free.credits': '1,000 free credits to start',
+		'pricing.free.projects': 'One project',
+		'pricing.free.support': 'Community support',
+		'pricing.free.cta': 'Start Now',
+		'pricing.pro.title': 'Professional',
+		'pricing.pro.price': '99',
+		'pricing.pro.priceUnit': 'SAR / monthly',
+		'pricing.pro.desc': 'For serious entrepreneurs',
+		'pricing.pro.recommended': 'Recommended',
+		'pricing.pro.credits': '25,000 monthly credits',
+		'pricing.pro.unlimitedProjects': 'Unlimited projects',
+		'pricing.pro.removeBranding': 'Remove Wasf AI logo',
+		'pricing.pro.prioritySupport': 'Priority support',
+		'pricing.pro.exportCode': 'Export code',
+		'pricing.pro.cta': 'Subscribe Now',
+
+		// Credit Purchase Section
+		'credits.title': 'Do you need more?',
+		'credits.subtitle': 'Buy additional credit when needed',
+		'credits.package1.amount': '10,000 credits +',
+		'credits.package1.price': '40',
+		'credits.package2.amount': '50,000 credits +',
+		'credits.package2.price': '200',
+		'credits.package3.amount': '100,000 credits +',
+		'credits.package3.price': '350',
+		'credits.currency': 'SAR',
+
+		// AI Models Section
+		'aiModels.title': 'AI Models',
+		'aiModels.recommended': 'Recommended',
+		'aiModels.priceUnit': '1000 / token',
+		'aiModels.minimax.name': 'MiniMax',
+		'aiModels.minimax.price': '0.005',
+		'aiModels.glm.name': 'GLM 4.7',
+		'aiModels.glm.price': '0.004',
+		'aiModels.qwen.name': 'Qwen',
+		'aiModels.qwen.price': '0.005',
+		'aiModels.openai.name': 'OpenAI GPT-4o',
+		'aiModels.openai.price': '0.040',
+		'aiModels.gemini.name': 'Gemini Flash',
+		'aiModels.gemini.price': '0.012',
+
+		'pricing.business.title': 'Business',
+		'pricing.business.price': '299 S.R. / month',
+		'pricing.business.desc': 'For teams and organizations',
+		'pricing.business.allPro': 'All Pro features',
+		'pricing.business.unlimitedTeam': 'Unlimited team',
+		'pricing.business.sso': 'SSO and authentication',
+		'pricing.business.sla': 'Guaranteed SLA',
+		'pricing.business.manager': 'Dedicated account manager',
+		'pricing.business.support': '24/7 support',
+		'pricing.business.cta': 'Contact us',
+
+		// CTA
+		'cta.title': "Don't wait any longer",
+		'cta.subtitle':
+			"The idea in your mind deserves to see the light. Start now, and it's completely free.",
+		'cta.button': 'Create your free account now',
+
+		// Footer
+		'footer.tagline':
+			'Platform for building websites and applications in Arabic without code. Write your idea, and get a published site in minutes.',
+		'footer.product': 'Product',
+		'footer.company': 'Company',
+		'footer.resources': 'Resources',
+		'footer.account': 'Account',
+		'footer.product.features': 'Features',
+		'footer.product.prices': 'Prices',
+		'footer.product.templates': 'Templates',
+		'footer.product.integrations': 'Integrations',
+		'footer.product.updates': 'Updates',
+		'footer.product.performance': 'Performance',
+		'footer.company.about': 'About Us',
+		'footer.company.jobs': 'Jobs',
+		'footer.company.press': 'Press',
+		'footer.company.partners': 'Partners',
+		'footer.company.contact': 'Contact Us',
+		'footer.company.blog': 'Blog',
+		'footer.resources.help': 'Help',
+		'footer.resources.docs': 'Documentation',
+		'footer.resources.articles': 'Articles',
+		'footer.resources.videos': 'Videos',
+		'footer.resources.faq': 'FAQ',
+		'footer.resources.community': 'Community',
+		'footer.account.dashboard': 'Dashboard',
+		'footer.account.profile': 'Profile',
+		'footer.account.settings': 'Settings',
+		'footer.account.projects': 'Projects',
+		'footer.account.billing': 'Billing',
+		'footer.account.upgrade': 'Upgrade to Pro',
+		'footer.region': 'Middle East',
+		'footer.copyright': '© 2025 Wasfai. All rights reserved.',
+		'footer.privacy': 'Privacy Policy',
+		'footer.terms': 'Terms of Service',
+		'footer.cookies': 'Cookie Policy',
+		'footer.gdpr': 'GDPR Rights',
+
+		// Auth
+		'auth.welcome': 'Welcome',
+		'auth.welcomeBack': 'Welcome back',
+		'auth.createAccount': 'Create an account',
+		'auth.signIn': 'Sign in',
+		'auth.signUp': 'Sign up',
+		'auth.signInRequired': 'Sign in required',
+		'auth.authRequired': 'Authentication required for this action',
+		'auth.joinToStart': 'Join to start building amazing applications',
+		'auth.signInToSave':
+			'Sign in to save your apps and access your workspace',
+		'auth.continueWith': 'Or continue with',
+		'auth.continueWithGitHub': 'Continue with GitHub',
+		'auth.continueWithGoogle': 'Continue with Google',
+		'auth.email': 'Email',
+		'auth.emailPlaceholder': 'Email address',
+		'auth.password': 'Password',
+		'auth.passwordPlaceholder': 'Password',
+		'auth.confirmPassword': 'Confirm password',
+		'auth.confirmPasswordPlaceholder': 'Confirm password',
+		'auth.fullName': 'Full name',
+		'auth.fullNamePlaceholder': 'Full name',
+		'auth.signingIn': 'Signing in...',
+		'auth.creatingAccount': 'Creating account...',
+		'auth.noAccount': "Don't have an account? Sign up",
+		'auth.haveAccount': 'Already have an account? Sign in',
+		'auth.agreeToTerms': 'By continuing, you agree to our',
+		'auth.termsOfService': 'Terms of Service',
+		'auth.privacyPolicy': 'Privacy Policy',
+		'auth.and': 'and',
+		'auth.emailRequired': 'Email is required',
+		'auth.emailInvalid': 'Invalid email format',
+		'auth.passwordRequired': 'Password is required',
+		'auth.passwordMinLength': 'Password must be at least 8 characters',
+		'auth.nameRequired': 'Name is required',
+		'auth.nameMinLength': 'Name must be at least 2 characters',
+		'auth.passwordsDontMatch': 'Passwords do not match',
+
+		// Footer Pages - Product
+		'pages.features.metaTitle': 'Features | Wasf AI',
+		'pages.features.metaDescription':
+			'Explore Wasf AI features to build Arabic-first websites and apps without code.',
+		'pages.features.h1': 'Everything you need to build — in Arabic',
+		'pages.features.subheading':
+			'Create, publish, and scale websites and web apps with AI. No code required.',
+		'pages.features.primaryCta': 'Start for free',
+		'pages.features.secondaryCta': 'View pricing',
+		'pages.features.sections.builder.title': 'AI Website & App Builder',
+		'pages.features.sections.builder.desc':
+			'Describe what you want in Arabic. Wasf AI generates a working product you can edit instantly.',
+		'pages.features.sections.templates.title': 'Ready-to-use Templates',
+		'pages.features.sections.templates.desc':
+			'Choose from Arabic-optimized templates for businesses, landing pages, and more.',
+		'pages.features.sections.publishing.title': 'One-click Publishing',
+		'pages.features.sections.publishing.desc':
+			'Publish fast with performance best practices and mobile-first layout by default.',
+		'pages.features.sections.integrations.title': 'Integrations',
+		'pages.features.sections.integrations.desc':
+			'Connect payments, analytics, and other tools to run your product end-to-end.',
+		'pages.features.sections.security.title': 'Security & Reliability',
+		'pages.features.sections.security.desc':
+			'Built with modern security practices and scalable infrastructure.',
+		'pages.features.faqTitle': 'Frequently asked questions',
+		'pages.features.faqCta': 'Visit FAQ',
+
+		'pages.pricing.metaTitle': 'Pricing | Wasf AI',
+		'pages.pricing.metaDescription':
+			'Choose a plan that fits your project. Upgrade anytime.',
+		'pages.pricing.h1': 'Simple pricing for every stage',
+		'pages.pricing.subheading': "Start free. Upgrade when you're ready.",
+		'pages.pricing.billingToggleMonthly': 'Monthly',
+		'pages.pricing.billingToggleYearly': 'Yearly (save more)',
+		'pages.pricing.vatNote': 'VAT may apply based on your region.',
+		'pages.pricing.tiers.free.name': 'Free',
+		'pages.pricing.tiers.free.desc':
+			'Try Wasf AI and publish your first project.',
+		'pages.pricing.tiers.free.cta': 'Start Free',
+		'pages.pricing.tiers.pro.name': 'Pro',
+		'pages.pricing.tiers.pro.desc':
+			'For serious builders and growing projects.',
+		'pages.pricing.tiers.pro.cta': 'Upgrade to Pro',
+		'pages.pricing.tiers.business.name': 'Business',
+		'pages.pricing.tiers.business.desc':
+			'For teams, higher limits, and advanced controls.',
+		'pages.pricing.tiers.business.cta': 'Talk to Sales',
+		'pages.pricing.comparisonTitle': 'Compare plans',
+		'pages.pricing.faqCta': 'Billing FAQ',
+
+		'pages.templates.metaTitle': 'Templates | Wasf AI',
+		'pages.templates.metaDescription':
+			'Browse Arabic-first templates and start building in minutes.',
+		'pages.templates.h1': 'Start with a template',
+		'pages.templates.subheading':
+			'Pick a layout, customize it, and publish fast.',
+		'pages.templates.searchPlaceholder': 'Search templates...',
+		'pages.templates.filters.title': 'Filters',
+		'pages.templates.filters.category': 'Category',
+		'pages.templates.filters.industry': 'Industry',
+		'pages.templates.filters.language': 'Language',
+		'pages.templates.actions.preview': 'Preview',
+		'pages.templates.actions.useTemplate': 'Use template',
+		'pages.templates.empty.title': 'No templates found',
+		'pages.templates.empty.desc':
+			'Try changing filters or search keywords.',
+
+		'pages.integrations.metaTitle': 'Integrations | Wasf AI',
+		'pages.integrations.metaDescription':
+			'Connect payments, analytics, and tools to power your project.',
+		'pages.integrations.h1': 'Integrations',
+		'pages.integrations.subheading':
+			'Connect the tools you need to run your product.',
+		'pages.integrations.categories.payments': 'Payments',
+		'pages.integrations.categories.analytics': 'Analytics',
+		'pages.integrations.categories.auth': 'Authentication',
+		'pages.integrations.categories.webhooks': 'Webhooks & API',
+		'pages.integrations.categories.hosting': 'Hosting',
+		'pages.integrations.card.viewGuide': 'View setup guide',
+		'pages.integrations.card.comingSoon': 'Coming soon',
+
+		'pages.changelog.metaTitle': 'Changelog | Wasf AI',
+		'pages.changelog.metaDescription': "See what's new in Wasf AI.",
+		'pages.changelog.h1': 'Changelog',
+		'pages.changelog.subheading':
+			'Product updates, improvements, and fixes.',
+		'pages.changelog.subscribe': 'Get updates',
+		'pages.changelog.empty.title': 'No updates yet',
+		'pages.changelog.empty.desc': 'Check back soon.',
+
+		'pages.performance.metaTitle': 'Performance | Wasf AI',
+		'pages.performance.metaDescription':
+			'How Wasf AI optimizes performance and best practices.',
+		'pages.performance.h1': 'Performance',
+		'pages.performance.subheading':
+			'Fast by default. Built for mobile and SEO.',
+		'pages.performance.sections.webVitals.title': 'Core Web Vitals',
+		'pages.performance.sections.webVitals.desc':
+			'Optimized layouts, caching, and asset loading.',
+		'pages.performance.sections.cdn.title': 'Global Delivery (CDN)',
+		'pages.performance.sections.cdn.desc':
+			'Content served closer to your users for faster load times.',
+		'pages.performance.sections.images.title': 'Image Optimization',
+		'pages.performance.sections.images.desc':
+			'Compression and responsive sizing to keep pages lightweight.',
+
+		// Footer Pages - Resources
+		'pages.help.metaTitle': 'Help Center | Wasf AI',
+		'pages.help.metaDescription':
+			'Get help with setup, publishing, billing, and troubleshooting.',
+		'pages.help.h1': 'Help Center',
+		'pages.help.searchPlaceholder': 'Search help articles...',
+		'pages.help.categoriesTitle': 'Browse by category',
+		'pages.help.popularTitle': 'Popular articles',
+		'pages.help.empty.title': 'No results',
+		'pages.help.empty.desc': 'Try different keywords.',
+
+		'pages.docs.metaTitle': 'Docs | Wasf AI',
+		'pages.docs.metaDescription': 'Developer documentation for Wasf AI.',
+		'pages.docs.h1': 'Documentation',
+		'pages.docs.subheading':
+			'Guides and references for building, publishing, and integrations.',
+		'pages.docs.sidebar.quickstart': 'Quickstart',
+		'pages.docs.sidebar.builder': 'Builder',
+		'pages.docs.sidebar.integrations': 'Integrations',
+		'pages.docs.sidebar.hosting': 'Hosting',
+		'pages.docs.sidebar.security': 'Security',
+		'pages.docs.sidebar.api': 'API',
+
+		'pages.articles.metaTitle': 'Articles | Wasf AI',
+		'pages.articles.metaDescription':
+			'Guides, tutorials, and product updates.',
+		'pages.articles.h1': 'Articles',
+		'pages.articles.searchPlaceholder': 'Search articles...',
+		'pages.articles.readMore': 'Read more',
+		'pages.articles.empty.title': 'No articles found',
+		'pages.articles.empty.desc': 'Try adjusting your search.',
+
+		'pages.videos.metaTitle': 'Videos | Wasf AI',
+		'pages.videos.metaDescription':
+			'Video tutorials to learn Wasf AI quickly.',
+		'pages.videos.h1': 'Videos',
+		'pages.videos.subheading':
+			'Short tutorials to help you build and publish faster.',
+		'pages.videos.watch': 'Watch',
+		'pages.videos.empty.title': 'No videos yet',
+		'pages.videos.empty.desc': "We're adding tutorials soon.",
+
+		'pages.faq.metaTitle': 'FAQ | Wasf AI',
+		'pages.faq.metaDescription': 'Answers to the most common questions.',
+		'pages.faq.h1': 'Frequently Asked Questions',
+		'pages.faq.subheading':
+			'Quick answers about pricing, publishing, and support.',
+		'pages.faq.q1': 'What is Wasfai?',
+		'pages.faq.a1':
+			'Wasfai is an Arabic-first AI platform that allows anyone to create websites and web applications by describing their idea in natural Arabic or English — without writing code.',
+		'pages.faq.q2': 'Who is Wasfai for?',
+		'pages.faq.a2':
+			'Wasfai is designed for: Non-technical founders and entrepreneurs, Small businesses and freelancers, Students and creators, Anyone who wants to launch a website or MVP quickly.',
+		'pages.faq.q3': 'Do I need coding or design experience?',
+		'pages.faq.a3':
+			'No. Wasfai does not require any coding, design, or technical background. You simply describe what you want, and the AI builds it for you.',
+		'pages.faq.q4': 'What can I build using Wasfai?',
+		'pages.faq.a4':
+			'You can build: Business websites, Landing pages, Portfolios, MVP web apps, Dashboards and forms, Content-driven websites. Complex enterprise systems may require additional customization.',
+		'pages.faq.q5': 'Which languages does Wasfai support?',
+		'pages.faq.a5':
+			'Wasfai supports: Arabic (fully RTL-native and optimized), English. Arabic is the default and primary language of the platform.',
+		'pages.faq.q6': 'How does Wasfai work?',
+		'pages.faq.a6':
+			'1. You describe your project in Arabic or English\n2. The AI generates the website or app\n3. You preview and refine it via chat\n4. You publish it with one click',
+		'pages.faq.q7': "Can I edit my project after it's generated?",
+		'pages.faq.a7':
+			'Yes. You can: Modify text and layout, Ask the AI to update sections, Improve design or structure, Regenerate parts of the project. Edits are done via natural language chat.',
+		'pages.faq.q8': 'Does Wasfai host my website?',
+		'pages.faq.a8':
+			'Yes. Wasfai offers built-in hosting with: SSL security, Subdomain publishing, Fast global delivery. You may also choose to export or host elsewhere (based on plan).',
+		'pages.faq.q9': 'Can I use my own domain?',
+		'pages.faq.a9':
+			'Yes. Paid plans allow you to connect your own custom domain to your Wasfai project.',
+		'pages.faq.q10': 'Is Wasfai free?',
+		'pages.faq.a10':
+			'Wasfai offers: A Free plan for testing and learning, Paid plans for publishing, hosting, and advanced features. Plan details are available on the Pricing page.',
+		'pages.faq.q11': 'How does pricing work?',
+		'pages.faq.a11':
+			'Pricing is based on: Usage (AI generation), Hosting features, Publishing options. Prices are shown clearly before payment, with no hidden fees.',
+		'pages.faq.q12': 'Which payment methods are supported?',
+		'pages.faq.a12':
+			'Payment methods may include: Local Saudi payment gateways, Credit and debit cards, Other supported regional methods. Availability may vary by country.',
+		'pages.faq.q13': 'Is VAT applied?',
+		'pages.faq.a13':
+			'Where applicable, VAT is applied according to local regulations and shown clearly during checkout.',
+		'pages.faq.q14': 'Who owns the generated website?',
+		'pages.faq.a14':
+			'You own the content you generate using Wasfai. Wasfai does not claim ownership of your project.',
+		'pages.faq.q15': 'Can I use Wasfai for commercial projects?',
+		'pages.faq.a15':
+			'Yes. Wasfai can be used for: Personal projects, Business websites, Commercial MVPs. Subject to the Terms of Service.',
+		'pages.faq.q16': 'Is my data safe?',
+		'pages.faq.a16':
+			'Yes. Wasfai follows industry-standard security practices and does not sell user data.',
+		'pages.faq.q17': 'Does Wasfai store my prompts or content?',
+		'pages.faq.a17':
+			'Prompts may be stored temporarily to improve the service and ensure functionality, in accordance with the Privacy Policy.',
+		'pages.faq.q18': 'Does Wasfai guarantee perfect output?',
+		'pages.faq.a18':
+			'No. AI-generated content may require review, testing, and refinement. Users are responsible for final validation before public or commercial use.',
+		'pages.faq.q19': 'Can I cancel my subscription?',
+		'pages.faq.a19':
+			'Yes. Subscriptions can be canceled at any time according to the billing terms.',
+		'pages.faq.q20': 'How can I contact support?',
+		'pages.faq.a20':
+			'You can contact Wasfai support via: The Contact page, Official support email, In-platform support (if available).',
+		'pages.faq.stillHaveQuestions': 'Still have questions?',
+		'pages.faq.contactUs': 'Contact Us',
+		'landing.faq.title': 'Frequently Asked Questions',
+		'landing.faq.subtitle': 'Quick answers to the most common questions',
+
+		'pages.community.metaTitle': 'Community | Wasf AI',
+		'pages.community.metaDescription': 'Join the Wasf AI community.',
+		'pages.community.h1': 'Community',
+		'pages.community.subheading':
+			'Share feedback, templates, and learn with others.',
+		'pages.community.primaryCta': 'Join community',
+		'pages.community.secondaryCta': 'Submit feedback',
+
+		// Footer Pages - Company
+		'pages.about.metaTitle': 'About | Wasf AI',
+		'pages.about.metaDescription': 'Learn about Wasf AI mission and story.',
+		'pages.about.h1': 'About Wasf AI',
+		'pages.about.subheading':
+			'Arabic-first vibe coding to help anyone build real products faster.',
+		'pages.about.sections.mission.title': 'Mission',
+		'pages.about.sections.mission.desc':
+			'Make building accessible in Arabic.',
+		'pages.about.sections.vision.title': 'Vision',
+		'pages.about.sections.vision.desc':
+			'A global platform built from Saudi, for the world.',
+		'pages.about.sections.values.title': 'Values',
+		'pages.about.sections.values.desc':
+			'Clarity, speed, trust, and craftsmanship.',
+		'pages.about.primaryCta': 'Start building',
+		'pages.about.secondaryCta': 'View templates',
+
+		'pages.careers.metaTitle': 'Careers | Wasf AI',
+		'pages.careers.metaDescription': 'Join Wasf AI team.',
+		'pages.careers.h1': 'Careers',
+		'pages.careers.subheading':
+			'Help build the next generation of Arabic-first AI products.',
+		'pages.careers.openRoles': 'Open roles',
+		'pages.careers.apply': 'Apply',
+		'pages.careers.empty.title': 'No open roles',
+		'pages.careers.empty.desc': 'Check back soon.',
+
+		'pages.press.metaTitle': 'Press | Wasf AI',
+		'pages.press.metaDescription': 'Press kit and media resources.',
+		'pages.press.h1': 'Press',
+		'pages.press.subheading':
+			'Brand assets, announcements, and media contact.',
+		'pages.press.downloadKit': 'Download press kit',
+		'pages.press.mediaContact': 'Media contact',
+		'pages.press.emailLabel': 'Email',
+
+		'pages.partners.metaTitle': 'Partners | Wasf AI',
+		'pages.partners.metaDescription': 'Partner with Wasf AI.',
+		'pages.partners.h1': 'Partners',
+		'pages.partners.subheading':
+			'Work with us to help more builders launch faster.',
+		'pages.partners.typesTitle': 'Partner programs',
+		'pages.partners.applyCta': 'Apply to become a partner',
+
+		'pages.contact.metaTitle': 'Contact | Wasf AI',
+		'pages.contact.metaDescription': 'Contact Wasf AI support and team.',
+		'pages.contact.h1': 'Contact us',
+		'pages.contact.subheading':
+			"Send us a message and we'll get back to you.",
+		'pages.contact.form.name': 'Name',
+		'pages.contact.form.email': 'Email',
+		'pages.contact.form.topic': 'Topic',
+		'pages.contact.form.topicOptions.support': 'Support',
+		'pages.contact.form.topicOptions.sales': 'Sales',
+		'pages.contact.form.topicOptions.legal': 'Legal',
+		'pages.contact.form.message': 'Message',
+		'pages.contact.form.submit': 'Send message',
+		'pages.contact.success.title': 'Message sent',
+		'pages.contact.success.desc': "We'll reply as soon as possible.",
+
+		'pages.blog.metaTitle': 'Blog | Wasf AI',
+		'pages.blog.metaDescription': 'News, tutorials, and product updates.',
+		'pages.blog.h1': 'Blog',
+		'pages.blog.subheading': 'Learn, launch, and grow with Wasf AI.',
+
+		// Footer Pages - Account
+		'pages.account.dashboard.navLabel': 'Dashboard',
+		'pages.account.dashboard.h1': 'Dashboard',
+		'pages.account.dashboard.subheading':
+			'Manage projects, publishing, and billing in one place.',
+		'pages.account.dashboard.quickActions': 'Quick actions',
+		'pages.account.dashboard.newProject': 'New project',
+		'pages.account.dashboard.openBuilder': 'Open builder',
+		'pages.account.dashboard.usage': 'Usage',
+		'pages.account.dashboard.plan': 'Plan',
+		'pages.account.dashboard.billingCta': 'Manage billing',
+
+		'pages.account.profile.navLabel': 'Profile',
+		'pages.account.profile.h1': 'Profile',
+		'pages.account.profile.name': 'Name',
+		'pages.account.profile.email': 'Email',
+		'pages.account.profile.save': 'Save changes',
+		'pages.account.profile.securityTitle': 'Security',
+		'pages.account.profile.changePassword': 'Change password',
+
+		'pages.account.settings.navLabel': 'Settings',
+		'pages.account.settings.h1': 'Settings',
+		'pages.account.settings.language': 'Language',
+		'pages.account.settings.region': 'Region',
+		'pages.account.settings.notifications': 'Notifications',
+		'pages.account.settings.save': 'Save',
+
+		'pages.account.projects.navLabel': 'Projects',
+		'pages.account.projects.h1': 'Projects',
+		'pages.account.projects.search': 'Search projects...',
+		'pages.account.projects.open': 'Open',
+		'pages.account.projects.publish': 'Publish',
+		'pages.account.projects.duplicate': 'Duplicate',
+		'pages.account.projects.delete': 'Delete',
+		'pages.account.projects.empty.title': 'No projects yet',
+		'pages.account.projects.empty.desc':
+			'Create your first project to get started.',
+		'pages.account.projects.empty.cta': 'Create project',
+
+		'pages.account.billing.navLabel': 'Billing',
+		'pages.account.billing.h1': 'Billing',
+		'pages.account.billing.currentPlan': 'Current plan',
+		'pages.account.billing.managePlan': 'Manage plan',
+		'pages.account.billing.paymentMethod': 'Payment method',
+		'pages.account.billing.invoices': 'Invoices',
+		'pages.account.billing.downloadInvoice': 'Download',
+		'pages.account.billing.vatInvoice': 'VAT invoice',
+
+		'pages.upgrade.navLabel': 'Upgrade to Pro',
+		'pages.upgrade.h1': 'Upgrade to Pro',
+		'pages.upgrade.subheading':
+			'Unlock higher limits and advanced features.',
+		'pages.upgrade.cta': 'Upgrade now',
+		'pages.upgrade.secondary': 'See pricing',
+
+		// Footer Pages - Legal
+		'pages.legal.terms.navLabel': 'Terms of Service',
+		'pages.legal.terms.h1': 'Terms of Service',
+		'pages.legal.terms.lastUpdated': 'Last updated',
+		'pages.legal.privacy.navLabel': 'Privacy Policy',
+		'pages.legal.privacy.h1': 'Privacy Policy',
+		'pages.legal.privacy.lastUpdated': 'Last updated',
+		'pages.legal.cookies.navLabel': 'Cookies Policy',
+		'pages.legal.cookies.h1': 'Cookies Policy',
+		'pages.legal.cookies.lastUpdated': 'Last updated',
+		'pages.legal.gdpr.navLabel': 'GDPR & Data Protection',
+		'pages.legal.gdpr.h1': 'GDPR & Data Protection',
+		'pages.legal.gdpr.lastUpdated': 'Last updated',
+	},
+};
+
+export function LanguageProvider({ children }: { children: ReactNode }) {
+	const [language, setLanguageState] = useState<Language>(() => {
+		const saved = localStorage.getItem('language');
+		return saved === 'ar' || saved === 'en' ? saved : 'ar';
+	});
+
+	useEffect(() => {
+		localStorage.setItem('language', language);
+		document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
+		document.documentElement.lang = language;
+	}, [language]);
+
+	const setLanguage = (lang: Language) => {
+		setLanguageState(lang);
+	};
+
+	const t = (key: string): string => {
+		return translations[language][key] || key;
+	};
+
+	return (
+		<LanguageContext.Provider value={{ language, setLanguage, t }}>
+			{children}
+		</LanguageContext.Provider>
+	);
+}
+
+export function useLanguage() {
+	const context = useContext(LanguageContext);
+	if (context === undefined) {
+		throw new Error('useLanguage must be used within a LanguageProvider');
+	}
+	return context;
+}
